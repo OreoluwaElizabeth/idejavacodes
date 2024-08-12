@@ -10,5 +10,5 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ViewProfileRequest {
-    private String id;
+    private String username;
 }

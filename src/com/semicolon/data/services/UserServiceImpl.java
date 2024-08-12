@@ -1,8 +1,6 @@
 package com.semicolon.data.services;
 
-import com.semicolon.data.DTO.request.AccountDeleteRequest;
-import com.semicolon.data.DTO.request.UserRequest;
-import com.semicolon.data.DTO.request.ViewProfileRequest;
+import com.semicolon.data.DTO.request.*;
 import com.semicolon.data.DTO.response.*;
 import com.semicolon.data.models.User;
 import com.semicolon.data.repositories.UserRepository;
@@ -42,40 +40,45 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public LoginResponse login(UserRequest userRequest) {
-        List<User> users = userRepository.findByEmail(userRequest.getEmail());
-        if (users.isEmpty()) {
-            return new LoginResponse("Email not found");
+    public LoginResponse login(LoginRequest loginRequest) {
+        try {
+            User user = userRepository.findByUsername(loginRequest.getUsername());
+            if (user == null) {
+                throw new Exception("Username not found");
+            }
+            if (!user.getPassword().equals(loginRequest.getPassword())) {
+                return new LoginResponse("Incorrect password");
+            }
+            return new LoginResponse("Logged in successfully");
+        } catch (Exception e) {
+            return new LoginResponse("An error occured: " + e.getMessage());
         }
-        User user = users.get(0);
-        if (!user.getPassword().equals(userRequest.getPassWord())) {
-            return new LoginResponse("Incorrect password");
-        }
-        return new LoginResponse("Logged in successfully");
+
     }
 
     @Override
-    public LogoutResponse logout(UserRequest userRequest) {
+    public LogoutResponse logout(LogoutRequest logoutRequest) {
         return new LogoutResponse("Logged out successfully");
     }
 
     @Override
-    public UpdateResponse updateProfile(UserRequest userRequest) {
-        List<User> users = userRepository.findByEmail(userRequest.getEmail());
-        if (users.isEmpty()) {
-            return new UpdateResponse("User not found", null);
+    public UpdateResponse updateProfile(UpdateRequest updateRequest) {
+        User user = userRepository.findByUsername(updateRequest.getUsername());
+        if (user == null) {
+            return new UpdateResponse("", "User not found");
         }
-        User user = users.get(0);
-        user.setUsername(userRequest.getUserName());
-        user.setPassword(userRequest.getPassWord());
+        user.setUsername(updateRequest.getUsername());
+        user.setPassword(updateRequest.getPassword());
         userRepository.save(user);
-        return new UpdateResponse("Profile updated successfully", "");
+        return new UpdateResponse("", "Profile updated successfully");
     }
 
     @Override
     public ViewProfileResponse viewProfile(ViewProfileRequest viewProfileRequest) {
-        User user = userRepository.findById(viewProfileRequest.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(viewProfileRequest.getUsername());
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
         ViewProfileResponse response = new ViewProfileResponse();
         response.setUserName(user.getUsername());
         response.setEmail(user.getEmail());
@@ -85,11 +88,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public DeleteResponse deleteAccount(AccountDeleteRequest accountDeleteRequest) {
-        List<User> users = userRepository.findByUsername(accountDeleteRequest.getUserName());
-        if (users.isEmpty()) {
+        User user = userRepository.findByUsername(accountDeleteRequest.getUserName());
+        if (user == null) {
             throw new RuntimeException("User not found");
         }
-        User user = users.get(0);
         if (!user.getPassword().equals(user.getPassword())) {
             return new DeleteResponse("Incorrect password", false);
         }

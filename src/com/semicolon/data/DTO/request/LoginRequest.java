@@ -9,9 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ViewTaskRequest {
-    private String title;
-
-    public static class UpdateRequest {
-    }
+public class LoginRequest {
+    private String username;
+    private String password;
 }

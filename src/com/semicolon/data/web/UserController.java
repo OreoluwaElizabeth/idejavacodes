@@ -1,8 +1,6 @@
 package com.semicolon.data.web;
 
-import com.semicolon.data.DTO.request.AccountDeleteRequest;
-import com.semicolon.data.DTO.request.UserRequest;
-import com.semicolon.data.DTO.request.ViewProfileRequest;
+import com.semicolon.data.DTO.request.*;
 import com.semicolon.data.DTO.response.*;
 import com.semicolon.data.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
     @Autowired
     private UserService userService;
 
@@ -23,18 +22,18 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody UserRequest userRequest) {
-        return userService.login(userRequest);
+    public LoginResponse login(@RequestBody LoginRequest loginRequest) {
+        return userService.login(loginRequest);
     }
 
     @PostMapping("/logout")
-    public LogoutResponse logout(@RequestBody UserRequest userRequest) {
-        return userService.logout(userRequest);
+    public LogoutResponse logout(@RequestBody LogoutRequest logoutRequest) {
+        return userService.logout(logoutRequest);
     }
 
     @PostMapping("/update-profile")
-    public UpdateResponse updateProfile(@RequestBody UserRequest userRequest) {
-        return userService.updateProfile(userRequest);
+    public UpdateResponse updateProfile(@RequestBody UpdateRequest updateRequest) {
+        return userService.updateProfile(updateRequest);
     }
 
     @PostMapping("/view-profile")

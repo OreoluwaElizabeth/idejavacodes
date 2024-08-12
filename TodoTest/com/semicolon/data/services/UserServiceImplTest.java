@@ -1,8 +1,6 @@
 package com.semicolon.data.services;
 
-import com.semicolon.data.DTO.request.AccountDeleteRequest;
-import com.semicolon.data.DTO.request.UserRequest;
-import com.semicolon.data.DTO.request.ViewProfileRequest;
+import com.semicolon.data.DTO.request.*;
 import com.semicolon.data.DTO.response.*;
 import com.semicolon.data.models.User;
 import com.semicolon.data.repositories.UserRepository;
@@ -27,7 +25,7 @@ public class UserServiceImplTest {
     public void signUp() {
         UserRequest userRequest = new UserRequest();
         userRequest.setUserName("Lizzy");
-        userRequest.setEmail("Timothy@gmail.com");
+        userRequest.setEmail("womder@gmail.com");
         userRequest.setPassWord("Password");
         UserResponse userResponse = userService.signUp(userRequest);
         assertThat(userResponse).isNotNull();
@@ -59,14 +57,16 @@ public class UserServiceImplTest {
 
     @Test
     public void testLogin() {
-        UserRequest userRequest = new UserRequest();
-        userRequest.setEmail("timothy@gmail.com");
-        userRequest.setPassWord("12345678");
-        userService.signUp(userRequest);
+        UserRequest signUpRequest = new UserRequest();
+        signUpRequest.setUserName("timothy");
+        signUpRequest.setPassWord("12345678");
+        signUpRequest.setEmail("@timothy@gmail.com");
+        userService.signUp(signUpRequest);
 
-        UserRequest loginRequest = new UserRequest();
-        loginRequest.setEmail("timothy@gmail.com");
-        loginRequest.setPassWord("12345678");
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsername("timothy");
+        loginRequest.setPassword("12345678");
+
         LoginResponse loginResponse = userService.login(loginRequest);
         assertThat(loginResponse).isNotNull();
         assertThat(loginResponse.getMessage()).isEqualTo("Logged in successfully");
@@ -74,9 +74,8 @@ public class UserServiceImplTest {
 
     @Test
     public void testLogout() {
-        UserRequest userRequest = new UserRequest();
-        userRequest.setEmail("lizzy@gmail.com");
-        LogoutResponse logoutResponse = userService.logout(userRequest);
+        LogoutRequest logoutRequest = new LogoutRequest();
+        LogoutResponse logoutResponse = userService.logout(logoutRequest);
         assertNotNull(logoutResponse);
         assertEquals("Logged out successfully", logoutResponse.getMessage());
     }
@@ -84,20 +83,20 @@ public class UserServiceImplTest {
     @Test
     public void testUpdate() {
         UserRequest createUserRequest = new UserRequest();
+        createUserRequest.setUserName("Lizzy");
         createUserRequest.setEmail("lizzy@gmail.com");
         createUserRequest.setPassWord("password");
         userService.signUp(createUserRequest);
 
-        UserRequest loginRequest = new UserRequest();
-        loginRequest.setEmail("lizzy@gmail.com");
-        loginRequest.setPassWord("password");
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsername("Lizzy");
+        loginRequest.setPassword("password");
         LoginResponse loginResponse = userService.login(loginRequest);
         assertNotNull(loginResponse);
 
-        UserRequest updateRequest = new UserRequest();
-        updateRequest.setEmail("lizzy@gmail.com");
-        updateRequest.setUserName("lizzy");
-        updateRequest.setPassWord("12345678");
+        UpdateRequest updateRequest = new UpdateRequest();
+        updateRequest.setUsername("lizzy");
+        updateRequest.setPassword("12345678");
         UpdateResponse updateResponse = userService.updateProfile(updateRequest);
         assertNotNull(updateResponse);
         assertEquals("Profile updated successfully", updateResponse.getMessage());
@@ -106,16 +105,15 @@ public class UserServiceImplTest {
     @Test
     public void testViewProfile() {
         User user = new User();
-        user.setId("12");
-        user.setUsername("Lizzy");
+        user.setUsername("Lizabeth");
         user.setEmail("rosh@gmail.com");
         userRepository.save(user);
 
         ViewProfileRequest request = new ViewProfileRequest();
-        request.setId("12");
+        request.setUsername("Lizabeth");
 
         ViewProfileResponse response = userService.viewProfile(request);
-        assertEquals("Lizzy", response.getUserName());
+        assertEquals("Lizabeth", response.getUserName());
         assertEquals("rosh@gmail.com", response.getEmail());
         assertEquals("Profile viewed successfully", response.getMessage());
     }
@@ -135,7 +133,7 @@ public class UserServiceImplTest {
         assertEquals("Account deleted successfully", response.getMessage());
         assertTrue(response.getSuccess());
 
-        List<User> users = userRepository.findByUsername("Elizabeth");
-        assertEquals(0, users.size());
+        User deletedUser = userRepository.findByUsername("Elizabeth");
+        assertNull(deletedUser);
     }
 }
